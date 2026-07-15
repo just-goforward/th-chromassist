@@ -1,0 +1,35 @@
+namespace Chromassist.Tests;
+
+public sealed class RepositorySafetyTests
+{
+    [Fact]
+    public void SourceTreeContainsNoBlockedTouhouAssetExtensions()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var blocked = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".dat", ".anm", ".ecl", ".wav"
+        };
+        var roots = new[] { "src", "tests", "docs", "schemas" }
+            .Select(name => Path.Combine(repositoryRoot, name))
+            .Where(Directory.Exists);
+
+        var violations = roots
+            .SelectMany(root => Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories))
+            .Where(path => blocked.Contains(Path.GetExtension(path)))
+            .ToArray();
+
+        Assert.Empty(violations);
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null && !File.Exists(Path.Combine(current.FullName, "TouhouChromassist.sln")))
+        {
+            current = current.Parent;
+        }
+
+        return current?.FullName ?? throw new DirectoryNotFoundException("Repository root not found.");
+    }
+}

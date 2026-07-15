@@ -1,0 +1,25 @@
+**/bin/
+**/obj/
+.vs/
+.idea/
+*.user
+*.suo
+TestResults/
+artifacts/
+publish/
+work/
+
+# Never commit original, extracted, or generated Touhou assets.
+*.dat
+*.anm
+*.ecl
+*.wav
+generated/
+staging/
+local-patches/
+tools/thtk/*.exe
+tools/thtk/*.dll
+
+# Local machine configuration.
+appsettings.local.json
+*.local.json

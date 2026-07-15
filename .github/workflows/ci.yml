@@ -1,0 +1,26 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore
+      - run: dotnet format --verify-no-changes --no-restore
+      - run: dotnet build --configuration Release --no-restore
+      - run: dotnet test --configuration Release --no-build
+      - name: Verify repository contains no game assets
+        shell: pwsh
+        run: |
+          $blocked = Get-ChildItem -Recurse -File | Where-Object { $_.Extension -in '.dat', '.anm', '.ecl', '.wav' }
+          if ($blocked) { $blocked | ForEach-Object FullName; throw 'Blocked game asset extension found.' }
